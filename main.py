@@ -1,6 +1,4 @@
-from email import header
-from urllib import response
-from flask import Flask, render_template, request
+from flask import Flask, flash, redirect, render_template, request, url_for
 from config import Config
 import requests
 
@@ -21,6 +19,7 @@ def update_sheets(email):
     """
     Function email as arguement and appends it to the emails spreadsheet
     """
+    # Remember to first loop through email list to confirm email is unique
     url = app.config['SHEETY_URL']
     headers = {
         "Authorization": app.config['SHEETY_TOKEN']
@@ -48,6 +47,14 @@ def join_list():
     """
     # get email address from form
     email = request.form.get('email')
+    # ensure email
+    if email is None:
+        return redirect(url_for('index'))
+    update_sheets(email)
+    # add a flash message in case user tries to re-register
+    send_email(email)
+    flash('You have succesfully subscribed to our waiting list', 'success')
+    return redirect(url_for('index'))
 
 
 if __name__ == "__main__":
