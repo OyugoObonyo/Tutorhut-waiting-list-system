@@ -1,9 +1,13 @@
+from email import header
+from urllib import response
 from flask import Flask, render_template, request
 from config import Config
 import requests
 
+
 app = Flask(__name__)
 app.config.from_object(Config)
+
 
 @app.route('/')
 def index():
@@ -13,11 +17,20 @@ def index():
     return render_template('index.html')
 
 
-def update_sheets():
+def update_sheets(email):
     """
-    Documentation
+    Function email as arguement and appends it to the emails spreadsheet
     """
-    pass
+    url = app.config['SHEETY_URL']
+    headers = {
+        "Authorization": app.config['SHEETY_TOKEN']
+    }
+    data = {
+        "sheet1": {
+            "EMAIL ADDRESSES": email
+        }
+    }
+    response = requests.post(url=url, json=data, headers=headers)
 
 
 def send_email(email):
