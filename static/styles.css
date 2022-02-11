@@ -1,4 +1,9 @@
 /** class selectors **/
 .d-flex{
-    padding: 100px;
+    margin-top: 100px;
+}
+
+/** id selectors **/
+#mission{
+    margin-top: 5px;
 }
