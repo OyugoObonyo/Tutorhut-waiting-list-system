@@ -1,4 +1,3 @@
-import imp
 from smtplib import SMTPRecipientsRefused
 from flask import Flask, flash, redirect, render_template, request, url_for
 from config import Config
@@ -47,8 +46,10 @@ def update_sheets(user_email):
 
 def send_async_mail(app, message):
     """
-    Make the 
+    Make the email sending process asynchronous
     """
+    with app.app_context():
+        mail.send(message)
 
 
 def send_email(subject, sender, recipient, body):
@@ -61,7 +62,9 @@ def send_email(subject, sender, recipient, body):
     """
     msg = Message(subject=subject, sender=sender, recipients=recipient)
     msg.html = body
-    mail.send(msg)
+    thr = Thread(target=send_async_mail, args=[app, msg])
+    thr.start()
+    return thr
 
 
 @app.route('/join-list', methods=['GET', 'POST'])
@@ -86,7 +89,8 @@ def join_list():
                     body=render_template('email/email.html')
                 )
             except SMTPRecipientsRefused:
-                return flash("Please enter a valid email address with a 'example@mail.com' format", "danger")
+                flash("Please enter a valid email address with a 'example@mail.com' format", "danger")
+                return redirect(url_for('index'))
             finally:
                 return redirect(url_for('index'))
     flash("email cannot be empty", "danger")
