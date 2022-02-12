@@ -7,6 +7,7 @@ class Config(object):
     """
     class with the various configuration variables for the application
     """
+    SECRET_KEY = os.environ.get('SECRET_KEY') or "my_secret_token"
     SHEETY_URL = os.environ.get('SHEETY_URL')
     SHEETY_TOKEN = os.environ.get('SHEETY_TOKEN')
     MAIL_SERVER = os.environ.get('MAIL_SERVER')
