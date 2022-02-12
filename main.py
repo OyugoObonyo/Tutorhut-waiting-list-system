@@ -1,4 +1,5 @@
 from crypt import methods
+from unittest import result
 from urllib import response
 from flask import Flask, flash, redirect, render_template, request, url_for
 from config import Config
@@ -21,37 +22,28 @@ def index():
     return render_template('index.html')
 
 
-def update_sheets(email):
+def update_sheets(user_email):
     """
     Function email as arguement and appends it to the emails spreadsheet
     """
-    # Remember to first loop through email list to confirm email is unique
     url = app.config["SHEETY_URL"]
     date_added = datetime.datetime.now().strftime("%d/%m/%y")
     headers = {
         "Authorization": app.config["SHEETY_TOKEN"]
     }
-    data = {
-        "email": {
-            "addresses": email,
-            "dateAdded": date_added
+    row = {
+            "email": {
+                "addresses": user_email,
+                "dateAdded": date_added
+            }
         }
-    }
-    print(f"url: {url}")
-    print(f"token: {app.config['SHEETY_TOKEN']}")
-    check_email = requests.get(url, headers=headers)
-    email_data = check_email.json()['emails']
-    for data in email_data:
-        if data['addresses'] == email:
-            return 1
-    response = requests.post(url=url, json=data, headers=headers)
+    check_email = requests.get(f"{url}?filter[addresses]={user_email}", headers=headers)
+    if (len(check_email.json()['emails'])) > 0:
+        return 1
+    response = requests.post(url=url, json=row, headers=headers)
     return 0
 
-    # response = requests.post(url=url, json=data, headers=headers)
-    # print(response.status_code)
-    # print(response.json())
-
-
+ 
 # def send_email(subject, sender, recipient, body):
 #    """
 #    A function that sends a message confirming subscription to waitlist
